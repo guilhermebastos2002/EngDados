@@ -1,0 +1,130 @@
+CREATE DATABASE IF NOT EXISTS Empresai;
+
+CREATE TABLE IF NOT EXISTS product (
+ Maker varchar(100),
+ Model varchar(100),
+ Type varchar(100)
+);
+
+CREATE TABLE IF NOT EXISTS pc (
+ Code numeric,
+ Model varchar(100),
+ Speed varchar(100),
+ RAM numeric,
+ HD varchar(100),
+ CD varchar(100),
+ Price numeric
+);
+
+CREATE TABLE IF NOT EXISTS laptop (
+ Code numeric,
+ Model varchar(100),
+ Speed varchar(100),
+ RAM varchar(100),
+ HD varchar(100),
+ Price numeric,
+ screen varchar(100)
+);
+
+CREATE TABLE IF NOT EXISTS printer (
+ Code varchar(100),
+ Model varchar(100),
+ Color varchar(100),
+ Type varchar(100),
+ Price numeric
+);
+
+INSERT INTO product (Maker, Model, Type) VALUES
+ ('B', 1121, 'PC'),
+ ('A', 1232, 'PC'),
+ ('A', 1233, 'PC'),
+ ('E', 1260, 'PC'),
+ ('A', 1276, 'Printer'),
+ ('D', 1288, 'Laptop'),
+ ('A', 1298, 'Laptop'),
+ ('C', 1321, 'Laptop'),
+ ('A', 1401, 'Printer'),
+ ('A', 1408, 'Printer'),
+ ('D', 1433, 'Printer'),
+ ('E', 1434, 'Printer'),
+ ('B', 1750, 'Laptop'),
+ ('A', 1752, 'Laptop'),
+ ('E', 2113, 'PC'),
+ ('E', 2112, 'PC');
+
+INSERT INTO pc (Code, Model, Speed, RAM, HD, CD, Price) VALUES
+ (1, 1232, 500, 64, 5, '12x', 600),
+ (2, 1121, 750, 128, 14, '40x', 850),
+ (3, 1233, 500, 64, 5, '12x', 600),
+ (4, 1121, 600, 128, 14, '40x', 850),
+ (5, 1121, 600, 128, 8, '40x', 850),
+ (6, 1233, 750, 128, 20, '50x', 950),
+ (7, 1232, 500, 32, 10, '12x', 400),
+ (8, 1232, 450, 64, 8, '24x', 350),
+ (9, 1232, 450, 32, 10, '24x', 350),
+ (10, 1260, 500, 32, 10, '12x', 350),
+ (11, 1233, 900, 128, 40, '40x', 980),
+ (12, 1233, 800, 128, 20, '50x', 970);
+
+INSERT INTO laptop (Code, Model, Speed, RAM, HD, Price, Screen) VALUES
+ (1, 1298, 350, 32, 4, 700, 11),
+ (2, 1321, 500, 64, 8, 970, 12),
+ (3, 1750, 750, 128, 12, 1200, 14),
+ (4, 1298, 600, 64, 10, 1050, 15),
+ (5, 1752, 750, 128, 10, 1150, 14),
+ (6, 1298, 450, 64, 10, 950, 12);
+
+INSERT INTO printer (Code, Model, Color, Type, Price) VALUES
+ (6, 1288, 'n', 'Laser', 400),
+ (5, 1408, 'n', 'Matrix', 270),
+ (4, 1401, 'n', 'Matrix', 150),
+ (3, 1434, 'y', 'Jet', 290),
+ (2, 1433, 'y', 'Jet', 270),
+ (1, 1276, 'n', 'Laser', 400);
+
+SELECT Model, Speed, HD FROM pc WHERE Price < 500;
+
+SELECT Maker FROM product WHERE Type = 'Printer';
+
+SELECT Model, RAM, Screen FROM laptop WHERE Price > 1000;
+
+SELECT p.Maker, l.Speed
+FROM product p
+JOIN laptop l ON p.Model = l.Model
+WHERE CAST(l.HD AS numeric) >= 10;
+
+SELECT product.Model, pc.Price, laptop.Price, printer.Price FROM product
+LEFT JOIN pc ON product.Model = pc.Model AND product.Type = 'PC'
+LEFT JOIN laptop ON product.Model = laptop.Model AND product.Type = 'Laptop'
+LEFT JOIN printer ON product.Model = printer.Model AND product.Type = 'Printer'
+WHERE product.Maker = 'B';
+
+SELECT Maker FROM product WHERE Type = 'PC';
+
+SELECT laptop.Model, laptop.Speed FROM laptop JOIN pc ON laptop.Speed < pc.Speed;
+
+SELECT DISTINCT p.Maker FROM product p
+JOIN printer pr ON p.Model = pr.Model
+WHERE pr.Price = (SELECT MIN(Price) FROM printer);
+
+SELECT Maker
+FROM (
+    SELECT Maker, COUNT(DISTINCT Type) AS Num_PC_Types
+    FROM product
+    WHERE Type = 'PC'
+    GROUP BY Maker
+) AS PC_Makers
+WHERE Num_PC_Types >= 3;
+
+SELECT Maker, MAX(pc.Price) AS Max_Price
+FROM product
+JOIN pc ON product.Model = pc.Model
+GROUP BY Maker;
+
+SELECT Model FROM product WHERE Price = (SELECT MAX(Price) FROM product);
+
+SELECT DISTINCT p.Maker FROM product p
+JOIN pc pc1 ON p.Model = pc1.Model
+JOIN pc pc2 ON pc1.RAM = (SELECT MIN(RAM) FROM pc)
+JOIN printer pr ON p.Maker = pr.Maker
+WHERE pc1.Speed = (SELECT MAX(Speed) FROM pc WHERE RAM = (SELECT MIN(RAM) FROM pc));

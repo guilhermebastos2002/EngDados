@@ -1,0 +1,5 @@
+AcEngDadosP3
+
+2.
+a) Sim, Pois na cardinalidade está representado 1,1 que significa que só uma turma pode corresponder ao dia-turma
+b) Dia turma é uma entidade fraca pois ela depende da entidade Turma para ser identificada
